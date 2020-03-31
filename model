@@ -1,0 +1,190 @@
+import random
+import matplotlib.pyplot as plt
+
+pop_amount = 10
+native_pop = []
+in_pop = []
+food_amount = 40
+food = []
+in_pop_amount =0
+hungary_boi = []
+survive_rate = []
+time_frame = []
+yearlySRate = []
+amount_alive_month = []
+year_num = 0
+adaptation = 0
+adaptation_rate = 0
+year_ar = []
+
+letter_list = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+               'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+
+
+def pop_creator():
+    # creates native population
+    for i in range(pop_amount):
+        y = random.randint(0, 5)
+        x = random.randint(0, 5)
+        hunger = 9
+        reach = random.randint(1, 3)
+        movement = random.randint(1, 3)
+        gender = random.randint(1, 2)
+        if gender == 1:
+            gender = "female"
+        else:
+            gender = "male"
+        gene1 = random.randint(0, 1)
+        gene2 = random.randint(0, 1)
+        gene3 = random.randint(0, 1)
+        gene4 = random.randint(0, 1)
+        gene5 = random.randint(0, 1)
+        gene6 = random.randint(0, 1)
+
+        family = letter_list[random.randint(0, 25)]
+        generation = 0
+
+        creature = [[x, y], hunger, [reach, movement], "f", gender, 0,
+                    [gene1, gene2, gene3, gene4, gene5, gene6], family, generation, 0]
+        native_pop.append(creature)
+
+
+def invasive_creator():
+    # creates invasive pop
+    for i in range(in_pop_amount):
+        y = random.randint(0, 5)
+        x = random.randint(0, 5)
+        hunger = 6
+        reach = random.randint(1, 3)
+        movement = random.randint(1, 3)
+        gender = random.randint(1, 2)
+        if gender == 1:
+            gender = "female"
+        else:
+            gender = "male"
+        gene1 = random.randint(0, 1)
+        gene2 = random.randint(0, 1)
+        gene3 = random.randint(0, 1)
+        gene4 = random.randint(0, 1)
+        gene5 = random.randint(0, 1)
+        gene6 = random.randint(0, 1)
+
+        creature = [[x, y], hunger, [reach, movement], 'f', gender, 0, [gene1, gene2, gene3, gene4, gene5, gene6]]
+        in_pop.append(creature)
+
+
+def create_resources():
+    # create food to eat
+    for i in range(food_amount):
+        x = random.randint(0, 5)
+        y = random.randint(0, 5)
+        food_location = [x, y, ]
+        food.append(food_location)
+
+
+def regenerate_resources(amount):
+    # plants growing back after every day
+    for i in range(amount):
+        x = random.randint(0, 5)
+        y = random.randint(0, 5)
+        food_location = [x, y]
+        food.append(food_location)
+
+
+def attain_food(hungary_boi):
+    global match
+    # iterates through and checks to see if the population is close to food
+    counter = 0
+    animal_counter = 0
+    eaten = False
+    for i in range(len(hungary_boi)):
+        if hungary_boi[animal_counter][1] <= 3:
+            indiviuals_reachx = hungary_boi[animal_counter][0][0] + hungary_boi[animal_counter][2][0]
+            indiviuals_reachy = hungary_boi[animal_counter][0][1] + hungary_boi[animal_counter][2][1]
+            max_reach = [indiviuals_reachx, indiviuals_reachy]
+            for i in range(len(food)):
+                if hungary_boi[animal_counter][0] == food[counter] and eaten == False:
+                    hungary_boi[animal_counter][1] += 6
+                    del food[counter]
+                    eaten = True
+                    match += 1
+                    counter -= 1
+                elif max_reach >= food[counter] and eaten == False:
+                    eaten = True
+                    match += 1
+                    counter -= 1
+                    if hungary_boi[animal_counter][0][0] > food[counter][0] or hungary_boi[animal_counter][0][1] > \
+                            food[counter][1]:
+                        match -= 1
+                        eaten = False
+                        counter += 1
+                    if eaten == True:
+                        hungary_boi[animal_counter][1] += 3
+                        del food[counter]
+
+                counter += 1
+        counter = 0
+        eaten = False
+        animal_counter += 1
+    return match
+
+
+def add_age(pop):
+    animal_counter = 0
+    for i in range(len(pop)):
+        pop[animal_counter][5] += 1
+        animal_counter += 1
+
+
+def check_Hungry(pop):
+    # sees if "creature" hasn't eaten in three days or more
+    animal_counter = 0
+    for i in range(len(pop)):
+        if pop[animal_counter][1] <= 2:
+            pop[animal_counter][3] = "starving"
+            hungary_boi.append(pop[animal_counter])
+        else:
+            pop[animal_counter][3] = 0
+        animal_counter += 1
+    animal_counter = 0
+
+
+def check_death(pop):
+    global death
+    global monthly_death
+    global invasive_death
+    global yearly_death
+    # if creature is starving, kill
+    animal_counter1 = 0
+    for i in range(len(pop)):
+        if pop[animal_counter1][1] == 0:
+            del pop[animal_counter1]
+            animal_counter1 -= 1
+            if pop == in_pop:
+                invasive_death += 1
+            if pop == native_pop:
+                death += 1
+                monthly_death += 1
+                yearly_death += 1
+        elif pop[animal_counter1][5] == 12:
+            del pop[animal_counter1]
+            animal_counter1 -= 1
+            if pop == in_pop:
+                invasive_death += 1
+            if pop == native_pop:
+                death += 1
+                monthly_death += 1
+                yearly_death += 1
+
+        animal_counter1 += 1
+    return death
+    return invasive_death
+    return monthly_death
+
+
+def set_hunger(pop):
+    # reduce hunger by one each day
+    animal_counter = 0
+    for i in range(len(pop)):
+        pop[animal_counter][1] -= 1
+        animal_counter += 1
